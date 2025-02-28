@@ -41,10 +41,34 @@ void onButtonPressed(String value) {
     });
   }
 
+void calculateResult() {
+  try {
+    Parser p = Parser();
+    Expression exp = p.parse(input);
+    ContextModel cm = ContextModel();
+    double result = exp.evaluate(EvaluationType.REAL, cm);
+    setState(() {
+      output = result.toString();
+    });
+  } catch (e) {
+    setState(() {
+      output = "Error";
+    });
+  }
+}
+
 Widget buildButton(String value) {
   return Expanded(
     child: ElevatedButton(
-      onPressed: () => onButtonPressed(value),
+      onPressed: () {
+        if (value == "=") {
+          calculateResult();
+        } else if (value == "C") {
+          clear();
+        } else {
+          onButtonPressed(value);
+        }
+      },
       child: Text(value, style: TextStyle(fontSize: 24)),
     ),
   );
