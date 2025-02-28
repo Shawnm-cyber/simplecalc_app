@@ -43,6 +43,12 @@ void onButtonPressed(String value) {
 
 void calculateResult() {
   try {
+    if (input.contains("/0")) {
+      setState(() {
+        output = "Error";
+      });
+      return;
+    }
     Parser p = Parser();
     Expression exp = p.parse(input);
     ContextModel cm = ContextModel();
