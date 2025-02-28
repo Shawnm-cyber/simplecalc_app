@@ -82,12 +82,20 @@ Widget build(BuildContext context) {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Expanded(
-          child: Container(
-            alignment: Alignment.bottomRight,
-            padding: EdgeInsets.all(20),
-            child: Text(input, style: TextStyle(fontSize: 30)),
-          ),
-        ),
+  child: Container(
+    alignment: Alignment.bottomRight,
+    padding: EdgeInsets.all(20),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(input, style: TextStyle(fontSize: 30, color: Colors.black54)),
+        Text(output, style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
+      ],
+    ),
+  ),
+),
+
         Column(
           children: [
             Row(children: [buildButton("7"), buildButton("8"), buildButton("9"), buildButton("/")]),
