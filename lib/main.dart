@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
+
 void main() {
-  runApp(SimpleCalculator());
+  runApp(CalculatorApp());
 }
 
-class SimpleCalculator extends StatelessWidget {
-
-  // This widget is the root of your application.
+class CalculatorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,19 +20,20 @@ class CalculatorScreen extends StatefulWidget {
   _CalculatorScreenState createState() => _CalculatorScreenState();
 }
 
-  class _CalculatorScreenState extends State<CalculatorScreen> {
+class _CalculatorScreenState extends State<CalculatorScreen> {
   String input = "";
   String output = "";
 
-
-  
-
-void onButtonPressed(String value) {
+  // Function to handle button press
+  void onButtonPressed(String value) {
     setState(() {
+      // Prevent multiple decimal points in a single number
+      if (value == "." && input.contains(".")) return;
       input += value;
     });
   }
 
+  // Function to clear input and output
   void clear() {
     setState(() {
       input = "";
@@ -41,77 +41,93 @@ void onButtonPressed(String value) {
     });
   }
 
-void calculateResult() {
-  try {
-    if (input.contains("/0")) {
+  // Function to evaluate the mathematical expression
+  void calculateResult() {
+    try {
+      if (input.contains("/0")) {
+        setState(() {
+          output = "Error";
+        });
+        return;
+      }
+      Parser p = Parser();
+      Expression exp = p.parse(input);
+      ContextModel cm = ContextModel();
+      double result = exp.evaluate(EvaluationType.REAL, cm);
+      setState(() {
+        output = result.toString();
+      });
+    } catch (e) {
       setState(() {
         output = "Error";
       });
-      return;
     }
-    Parser p = Parser();
-    Expression exp = p.parse(input);
-    ContextModel cm = ContextModel();
-    double result = exp.evaluate(EvaluationType.REAL, cm);
-    setState(() {
-      output = result.toString();
-    });
-  } catch (e) {
-    setState(() {
-      output = "Error";
-    });
   }
-}
 
-Widget buildButton(String value) {
-  return Expanded(
-    child: ElevatedButton(
-      onPressed: () {
-        if (value == "=") {
-          calculateResult();
-        } else if (value == "C") {
-          clear();
-        } else {
-          onButtonPressed(value);
-        }
-      },
-      child: Text(value, style: TextStyle(fontSize: 24)),
-    ),
-  );
-}
+  // Function to create calculator buttons
+  Widget buildButton(String value, {Color? color}) {
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: () {
+          if (value == "=") {
+            calculateResult();
+          } else if (value == "C") {
+            clear();
+          } else {
+            onButtonPressed(value);
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.all(20),
+          backgroundColor: color ?? Colors.blueGrey[100],
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Text(
+          value,
+          style: TextStyle(fontSize: 24, color: Colors.black),
+        ),
+      ),
+    );
+  }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(title: Text("Calculator")),
-    body: Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Expanded(
-  child: Container(
-    alignment: Alignment.bottomRight,
-    padding: EdgeInsets.all(20),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Text(input, style: TextStyle(fontSize: 30, color: Colors.black54)),
-        Text(output, style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
-      ],
-    ),
-  ),
-),
-
-        Column(
-          children: [
-            Row(children: [buildButton("7"), buildButton("8"), buildButton("9"), buildButton("/")]),
-            Row(children: [buildButton("4"), buildButton("5"), buildButton("6"), buildButton("*")]),
-            Row(children: [buildButton("1"), buildButton("2"), buildButton("3"), buildButton("-")]),
-            Row(children: [buildButton("0"), buildButton("C"), buildButton("="), buildButton("+")]),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Calculator")),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Expanded(
+            child: Container(
+              alignment: Alignment.bottomRight,
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    input,
+                    style: TextStyle(fontSize: 30, color: Colors.black54),
+                  ),
+                  Text(
+                    output,
+                    style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Column(
+            children: [
+              Row(children: [buildButton("7"), buildButton("8"), buildButton("9"), buildButton("/")]),
+              Row(children: [buildButton("4"), buildButton("5"), buildButton("6"), buildButton("*")]),
+              Row(children: [buildButton("1"), buildButton("2"), buildButton("3"), buildButton("-")]),
+              Row(children: [buildButton("0"), buildButton("."), buildButton("=", color: Colors.orange), buildButton("+")]),
+              Row(children: [buildButton("C", color: Colors.red)]),
             ],
           ),
         ],
       ),
     );
-  }     
+  }
 }
